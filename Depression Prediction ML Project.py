@@ -40,20 +40,14 @@ df.drop(columns=['Academic Pressure', 'CGPA', 'Study Satisfaction'], inplace=Tru
 
 
 # In[7]:
-
-
-# Fill numerical missing values with median (without inplace=True)
+# Fill numerical missing values with median
+df['Age'] = df['Age'].fillna(df['Age'].median())
 df['Work Pressure'] = df['Work Pressure'].fillna(df['Work Pressure'].median())
 df['Job Satisfaction'] = df['Job Satisfaction'].fillna(df['Job Satisfaction'].median())
-
-
-# In[8]:
-
-
-# Fill categorical missing values with mode (without inplace=True)
-df['Profession'] = df['Profession'].fillna(df['Profession'].mode()[0])
-
-
+df['Work/Study Hours'] = df['Work/Study Hours'].fillna(df['Work/Study Hours'].median())
+df['Financial Stress'] = df['Financial Stress'].fillna(df['Financial Stress'].mode()[0] if not df['Financial Stress'].mode().empty else 0)
+# Sleep Duration handled in Cell [11]
+df['Profession'] = df['Profession'].fillna(df['Profession'].mode()[0])  # Keep for dataset integrity
 # In[9]:
 
 
@@ -62,32 +56,42 @@ print(df.isnull().sum())
 
 
 # In[10]:
-
-
 from sklearn.preprocessing import LabelEncoder
 
-# Binary Encoding (Yes/No → 0/1)
+# Check unique values in Depression to debug
+print("Unique values in Depression before encoding:", df['Depression'].unique())
+
+# Fill NaNs in Depression with mode (or default 'No' if mode is empty)
+df['Depression'] = df['Depression'].fillna(df['Depression'].mode()[0] if not df['Depression'].mode().empty else 'No')
+
+# Convert to string and standardize case to handle inconsistencies (e.g., 'yes', 'YES')
+df['Depression'] = df['Depression'].astype(str).str.strip().str.lower()
+df['Depression'] = df['Depression'].replace({'yes': 'Yes', 'no': 'No'})
+
+# Binary Encoding
 binary_cols = ['Have you ever had suicidal thoughts ?', 'Family History of Mental Illness', 'Depression']
 for col in binary_cols:
     df[col] = df[col].map({'Yes': 1, 'No': 0})
+    # Fill any remaining NaNs (from unmapped values) with mode or default
+    df[col] = df[col].fillna(df[col].mode()[0] if not df[col].mode().empty else 0)
 
+# Verify no NaNs in Depression
+print("NaNs in Depression after encoding:", df['Depression'].isnull().sum())
 
 # In[11]:
 
-
-# Label Encoding for smaller categorical features
-label_cols = ['Gender', 'Working Professional or Student', 'Sleep Duration', 'Dietary Habits']
-le = LabelEncoder()
-for col in label_cols:
-    df[col] = le.fit_transform(df[col])
-
-
+# Manual encoding for Sleep Duration to match app.py
+print("Unique values in Sleep Duration before encoding:", df['Sleep Duration'].unique())
+sleep_dict = {"<5": 0, "5-6": 1, "6-7": 2, "7-8": 3, "8+": 4}
+df['Sleep Duration'] = df['Sleep Duration'].astype(str).str.strip()  # Convert to string and clean
+df['Sleep Duration'] = df['Sleep Duration'].fillna('<5')  # Default to '<5'
+df['Sleep Duration'] = df['Sleep Duration'].map(sleep_dict)
+df['Sleep Duration'] = df['Sleep Duration'].fillna(0)  # Fallback to 0 if mapping fails
+print("NaNs in Sleep Duration after encoding:", df['Sleep Duration'].isnull().sum())
 # In[12]:
 
 
-# One-Hot Encoding for larger categorical features
-df = pd.get_dummies(df, columns=['City', 'Profession', 'Degree'], drop_first=True)  # Avoids multicollinearity
-
+# Skip one-hot encoding since app.py doesn't use City, Profession, Degree
 # Label Encoding	When the categorical variable has an order/rank (e.g., Small < Medium < Large).
 #One-Hot Encoding	When the categorical variable has no inherent order (e.g., City, Country, Profession).
 
@@ -132,7 +136,8 @@ smote = SMOTE(sampling_strategy=0.5, random_state=42)  # Adjust ratio as needed
 
 
 # Separate features and target
-X_final = df.drop(columns=['Depression', 'Name'], errors='ignore')
+X_final = df[['Age', 'Work Pressure', 'Job Satisfaction', 'Sleep Duration', 
+              'Work/Study Hours', 'Financial Stress']]
 y_final = df['Depression']
 # In[21]:
 
@@ -140,6 +145,10 @@ y_final = df['Depression']
 # Apply SMOTE
 from imblearn.over_sampling import SMOTE
 
+# Check for NaNs in X_final
+print("NaNs in X_final:", X_final.isnull().sum())
+if X_final.isnull().any().any():
+    raise ValueError("NaNs found in X_final. Check missing value handling.")
 
 # In[22]:
 
@@ -272,11 +281,8 @@ num_features = ['Age', 'Work/Study Hours', 'Financial Stress',
 
 # In[39]:
 
-
 scaler = StandardScaler()
-X_final[num_features] = scaler.fit_transform(X_final[num_features])
-
-
+X_final_scaled = scaler.fit_transform(X_final)
 # In[40]:
 
 
@@ -313,38 +319,37 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
 
 # Split data into train and test sets (80% train, 20% test)
-X_train, X_test, y_train, y_test = train_test_split(X_final, y_final, test_size=0.2, random_state=42, stratify=y_final)
-
-
+X_train, X_test, y_train, y_test = train_test_split(X_final_scaled, y_final, 
+                                                    test_size=0.2, random_state=42, 
+                                                    stratify=y_final)
 # In[44]:
 
 
 # Standardize numerical features
-scaler = StandardScaler()
-X_train_scaled = scaler.fit_transform(X_train)
-X_test_scaled = scaler.transform(X_test)
-
+# No need to scale again since X_final is already scaled
+X_train_scaled = X_train
+X_test_scaled = X_test
 
 # In[45]:
 
 
 # Train Logistic Regression model
-log_reg = LogisticRegression(random_state=42, max_iter=1000)
-log_reg.fit(X_train_scaled, y_train)
+best_log_reg = LogisticRegression(C=1, penalty='l1', solver='liblinear', random_state=42)
+best_log_reg.fit(X_train_scaled, y_train)
 
 
 # In[46]:
 
 
 # Predict on test data
-y_pred = log_reg.predict(X_test_scaled)
+y_pred = best_log_reg.predict(X_test_scaled)
 
 
 # In[47]:
 
 
 # Evaluate model performance
-log_reg_results = {
+best_log_reg_results = {
     "Accuracy": accuracy_score(y_test, y_pred),
     "Precision": precision_score(y_test, y_pred),
     "Recall": recall_score(y_test, y_pred),
@@ -355,7 +360,7 @@ log_reg_results = {
 # In[48]:
 
 
-log_reg_results
+best_log_reg_results
 
 
 # In[49]:
@@ -592,8 +597,10 @@ train_metrics
 test_metrics
 
 
-# In[ ]:
-
+# In[82]:
+import joblib
+joblib.dump(best_log_reg, 'depression_model.pkl')
+joblib.dump(scaler, 'scaler.pkl')
 
 
 
