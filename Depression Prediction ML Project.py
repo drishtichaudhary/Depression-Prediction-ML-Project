@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[19]:
+# In[2]:
 
 
 import pandas as pd
@@ -10,14 +10,14 @@ import pandas as pd
 file_path = r"C:\Users\lenovo\OneDrive\Desktop\ML_Projects\final_depression_dataset_1.csv"
 
 
-# In[20]:
+# In[3]:
 
 
 # Load the dataset
 df = pd.read_csv(file_path)
 
 
-# In[21]:
+# In[4]:
 
 
 # Display basic info
@@ -25,21 +25,21 @@ print(df.info())
 print(df.head())  # Show first 5 rows
 
 
-# In[22]:
+# In[5]:
 
 
 # Check missing values
 print(df.isnull().sum())
 
 
-# In[23]:
+# In[6]:
 
 
 # Drop columns with too many missing values
 df.drop(columns=['Academic Pressure', 'CGPA', 'Study Satisfaction'], inplace=True)
 
 
-# In[24]:
+# In[7]:
 
 
 # Fill numerical missing values with median (without inplace=True)
@@ -47,21 +47,21 @@ df['Work Pressure'] = df['Work Pressure'].fillna(df['Work Pressure'].median())
 df['Job Satisfaction'] = df['Job Satisfaction'].fillna(df['Job Satisfaction'].median())
 
 
-# In[25]:
+# In[8]:
 
 
 # Fill categorical missing values with mode (without inplace=True)
 df['Profession'] = df['Profession'].fillna(df['Profession'].mode()[0])
 
 
-# In[26]:
+# In[9]:
 
 
 # Verify if all missing values are handled
 print(df.isnull().sum())  
 
 
-# In[27]:
+# In[10]:
 
 
 from sklearn.preprocessing import LabelEncoder
@@ -72,7 +72,7 @@ for col in binary_cols:
     df[col] = df[col].map({'Yes': 1, 'No': 0})
 
 
-# In[28]:
+# In[11]:
 
 
 # Label Encoding for smaller categorical features
@@ -82,7 +82,7 @@ for col in label_cols:
     df[col] = le.fit_transform(df[col])
 
 
-# In[29]:
+# In[12]:
 
 
 # One-Hot Encoding for larger categorical features
@@ -92,14 +92,14 @@ df = pd.get_dummies(df, columns=['City', 'Profession', 'Degree'], drop_first=Tru
 #One-Hot Encoding	When the categorical variable has no inherent order (e.g., City, Country, Profession).
 
 
-# In[30]:
+# In[13]:
 
 
 # Check dataset after encoding
 print(df.head())  
 
 
-# In[31]:
+# In[14]:
 
 
 import seaborn as sns
@@ -111,14 +111,14 @@ plt.title("Class Distribution in 'Depression' Column")
 plt.show()
 
 
-# In[32]:
+# In[15]:
 
 
 # Print value counts
 print(df['Depression'].value_counts())
 
 
-# In[33]:
+# In[16]:
 
 
 #SMOTE (Synthetic Minority Oversampling Technique) creates synthetic examples for the minority class instead of just duplicating them.
@@ -128,42 +128,42 @@ from imblearn.over_sampling import SMOTE
 smote = SMOTE(sampling_strategy=0.5, random_state=42)  # Adjust ratio as needed
 
 
-# In[35]:
+# In[20]:
 
 
-X_final = df.drop(columns=['Depression', 'Name'], errors='ignore')
-y_final = df['Depression']
+# Separate features and target
+X= X_resampled[num_features]
+y = df_resampled['Depression']
 
-
-# In[36]:
+# In[21]:
 
 
 # Apply SMOTE
 from imblearn.over_sampling import SMOTE
 
 
-# In[37]:
+# In[22]:
 
 
-smote = SMOTE(sampling_strategy='auto', random_state=42)
-X_resampled, y_resampled = smote.fit_resample(X_final, y_final)
+smote = SMOTE(sampling_strategy=0.5, random_state=42)
+X_resampled, y_resampled = smote.fit_resample(X, y)
 
 
-# In[39]:
+# In[23]:
 
 
 # Convert back to DataFrame
-df_resampled = pd.concat([pd.DataFrame(X_resampled, columns=X_final.columns), pd.DataFrame(y_resampled, columns=['Depression'])], axis=1)
+df_resampled = pd.concat([pd.DataFrame(X_resampled, columns=X.columns), pd.DataFrame(y_resampled, columns=['Depression'])], axis=1)
 
 
-# In[40]:
+# In[24]:
 
 
 # Check new class distribution
 print(df_resampled['Depression'].value_counts())
 
 
-# In[41]:
+# In[25]:
 
 
 import seaborn as sns
@@ -177,7 +177,7 @@ plt.ylabel("Count")
 plt.show()
 
 
-# In[42]:
+# In[26]:
 
 
 # Plot histograms for all numerical features
@@ -186,7 +186,7 @@ plt.suptitle("Feature Distributions (Histograms)", fontsize=16)
 plt.show()
 
 
-# In[43]:
+# In[28]:
 
 
 # Select numerical columns only
@@ -202,14 +202,14 @@ for i in range(0, len(num_cols), chunk_size):
     plt.show()
 
 
-# In[44]:
+# In[29]:
 
 
 # Compute the correlation matrix
 corr_matrix = X_resampled.corr()
 
 
-# In[45]:
+# In[30]:
 
 
 # Plot the heatmap
@@ -219,7 +219,7 @@ plt.title("Feature Correlation Heatmap")
 plt.show()
 
 
-# In[46]:
+# In[31]:
 
 
 import numpy as np
@@ -239,7 +239,7 @@ def detect_outliers_iqr(df):
     return outlier_counts
 
 
-# In[47]:
+# In[32]:
 
 
 # Detect outliers
@@ -248,21 +248,21 @@ print("Outlier counts per feature (IQR method):")
 print(outliers_iqr)
 
 
-# In[48]:
+# In[35]:
 
 
 # Drop 'Name' and 'City' (if still present)
 X_resampled = X_resampled.drop(columns=['Name'], errors='ignore')
 
 
-# In[49]:
+# In[37]:
 
 
 # Check the remaining features
 print("Remaining Features:", X_resampled.columns)
 
 
-# In[50]:
+# In[38]:
 
 
 from sklearn.preprocessing import StandardScaler
@@ -271,15 +271,14 @@ from sklearn.preprocessing import StandardScaler
 num_features = ['Age', 'Work/Study Hours', 'Financial Stress',
                 'Sleep Duration', 'Job Satisfaction', 'Work Pressure']
 
-
-# In[51]:
+# In[39]:
 
 
 scaler = StandardScaler()
-X_final[num_features] = scaler.fit_transform(X_final[num_features])
+X_resampled[num_features] = scaler.fit_transform(X_resampled[num_features])
 
 
-# In[52]:
+# In[40]:
 
 
 from sklearn.ensemble import RandomForestClassifier
@@ -287,25 +286,25 @@ import pandas as pd
 
 # Initialize Random Forest model
 rf = RandomForestClassifier(n_estimators=100, random_state=42)
-rf.fit(X_final, y_final)
+rf.fit(X, y)
 
 
-# In[54]:
+# In[41]:
 
 
 # Get feature importance
-feature_importances = pd.Series(rf.feature_importances_, index=X_final.columns)
+feature_importances = pd.Series(rf.feature_importances_, index=X.columns)
 feature_importances.sort_values(ascending=False, inplace=True)
 
 
-# In[55]:
+# In[42]:
 
 
 # Display top features
 print(feature_importances.head(10))
 
 
-# In[58]:
+# In[43]:
 
 
 # Import necessary libraries
@@ -315,10 +314,10 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
 
 # Split data into train and test sets (80% train, 20% test)
-X_train, X_test, y_train, y_test = train_test_split(X_final, y_final, test_size=0.2, random_state=42, stratify=y_final)
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42, stratify=y)
 
 
-# In[59]:
+# In[44]:
 
 
 # Standardize numerical features
@@ -327,7 +326,7 @@ X_train_scaled = scaler.fit_transform(X_train)
 X_test_scaled = scaler.transform(X_test)
 
 
-# In[60]:
+# In[45]:
 
 
 # Train Logistic Regression model
@@ -335,14 +334,14 @@ log_reg = LogisticRegression(random_state=42, max_iter=1000)
 log_reg.fit(X_train_scaled, y_train)
 
 
-# In[61]:
+# In[46]:
 
 
 # Predict on test data
 y_pred = log_reg.predict(X_test_scaled)
 
 
-# In[62]:
+# In[47]:
 
 
 # Evaluate model performance
@@ -354,34 +353,34 @@ log_reg_results = {
 }
 
 
-# In[63]:
+# In[48]:
 
 
 log_reg_results
 
 
-# In[64]:
+# In[49]:
 
 
 # Initialize the Random Forest model
 rf_model = RandomForestClassifier(n_estimators=100, random_state=42)
 
 
-# In[65]:
+# In[50]:
 
 
 # Train the model
 rf_model.fit(X_train, y_train)
 
 
-# In[66]:
+# In[51]:
 
 
 # Make predictions
 y_pred_rf = rf_model.predict(X_test)
 
 
-# In[67]:
+# In[52]:
 
 
 # Evaluate the model
@@ -393,19 +392,19 @@ rf_metrics = {
 }
 
 
-# In[68]:
+# In[54]:
 
 
 rf_metrics
 
 
-# In[69]:
+# In[56]:
 
 
-pip install xgboost
+# Make sure xgboost is installed: pip install xgboost
 
 
-# In[70]:
+# In[57]:
 
 
 from xgboost import XGBClassifier
@@ -414,14 +413,14 @@ xgb_model = XGBClassifier(use_label_encoder=False, eval_metric='logloss', random
 xgb_model.fit(X_train, y_train)
 
 
-# In[71]:
+# In[58]:
 
 
 # Make predictions
 y_pred_xgb = xgb_model.predict(X_test)
 
 
-# In[72]:
+# In[59]:
 
 
 # Evaluate performance
@@ -433,13 +432,13 @@ xgb_metrics = {
 }
 
 
-# In[73]:
+# In[60]:
 
 
 xgb_metrics
 
 
-# In[74]:
+# In[64]:
 
 
 import matplotlib.pyplot as plt
@@ -478,7 +477,7 @@ ax.grid(axis="y", linestyle="--", alpha=0.7)
 plt.show()
 
 
-# In[75]:
+# In[65]:
 
 
 from sklearn.model_selection import GridSearchCV
@@ -492,14 +491,14 @@ param_grid = {
 }
 
 
-# In[76]:
+# In[66]:
 
 
 # Initialize Logistic Regression
 log_reg = LogisticRegression(random_state=42)
 
 
-# In[77]:
+# In[67]:
 
 
 # Perform Grid Search
@@ -507,14 +506,14 @@ grid_search = GridSearchCV(log_reg, param_grid, cv=5, scoring='f1', n_jobs=-1)
 grid_search.fit(X_train, y_train)
 
 
-# In[78]:
+# In[68]:
 
 
 # Best parameters
 print("Best Parameters:", grid_search.best_params_)
 
 
-# In[79]:
+# In[69]:
 
 
 # Train the best model
@@ -522,14 +521,14 @@ best_log_reg = LogisticRegression(C=1, penalty='l1', solver='liblinear', random_
 best_log_reg.fit(X_train, y_train)
 
 
-# In[80]:
+# In[70]:
 
 
 # Predictions
 y_pred = best_log_reg.predict(X_test)
 
 
-# In[81]:
+# In[72]:
 
 
 from sklearn import metrics
@@ -542,13 +541,13 @@ optimized_metrics = {
 }
 
 
-# In[82]:
+# In[73]:
 
 
 optimized_metrics
 
 
-# In[83]:
+# In[76]:
 
 
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
@@ -558,7 +557,7 @@ y_train_pred = best_log_reg.predict(X_train)  # Predictions on train data
 y_test_pred = best_log_reg.predict(X_test)    # Predictions on test data
 
 
-# In[84]:
+# In[77]:
 
 
 # Calculate metrics for Train set
@@ -570,7 +569,7 @@ train_metrics = {
 }
 
 
-# In[85]:
+# In[78]:
 
 
 # Calculate metrics for Test set
@@ -582,25 +581,16 @@ test_metrics = {
 }
 
 
-# In[86]:
+# In[80]:
 
 
 train_metrics
 
 
-# In[87]:
+# In[81]:
 
 
 test_metrics
-
-
-# In[88]:
-
-
-import joblib
-joblib.dump(best_log_reg, 'depression_model.pkl')
-joblib.dump(scaler, 'scaler.pkl')
-print("✅ Model and scaler saved.")
 
 
 # In[ ]:
