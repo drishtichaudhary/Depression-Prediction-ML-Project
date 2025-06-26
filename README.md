@@ -1,22 +1,47 @@
-Depression Prediction ML Project 🧠
-Overview 🌟This project is a machine learning app built with Streamlit to predict depression likelihood from user inputs. It uses a Logistic Regression model trained on a dataset with features like Age, Work Pressure, Job Satisfaction, Sleep Duration, Work/Study Hours, and Financial Stress. SMOTE handles class imbalance, and it’s live on Streamlit Cloud! 🚀
+# 🧠 Depression Prediction ML Project
 
-Installation 🛠️Get this app running locally with these steps:  
+A Streamlit-powered web app that predicts depression likelihood from lifestyle and mental health factors using a Logistic Regression model. It works on a Logistic Regression model trained on a dataset with features like Age, Work Pressure, Job Satisfaction, Sleep Duration, Work/Study Hours, and Financial Stress. Built with care, scaled with SMOTE, and deployed for everyone. 🎯
 
-Clone the Repo 📂:  
+---
+
+## 🌟 Overview
+
+This machine learning project predicts whether a person is likely to be depressed based on key features like:
+
+- Age
+- Work Pressure
+- Job Satisfaction
+- Sleep Duration
+- Work/Study Hours
+- Financial Stress
+
+Key highlights:
+- **Balanced dataset** using **SMOTE**
+- **Logistic Regression model** (L1 penalty, `C=1`)
+- **Deployed live on Streamlit Cloud!**
+
+---
+
+## 🛠️ Installation
+
+Run the app locally by following these steps:
+
+### 🔁 Clone the Repository
+```bash
 git clone https://github.com/your-username/your-repo-name.git
 cd your-repo-name
-
-
-Set Up a Virtual Environment (optional 😎):  
+```
+###🧪 (Optional) Set Up a Virtual Environment
+```bash
 python -m venv venv
-source venv/bin/activate  # Windows: venv\Scripts\activate
+```
 
-
-Install Dependencies 📦:  
+### 📦 Install Dependencies
+```
 pip install -r requirements.txt
 
-What’s in requirements.txt? 👇  
+<details><summary>📋<b>Dependencies in requirements.txt</b></summary>
+```
 streamlit
 numpy
 scikit-learn
@@ -26,74 +51,89 @@ imbalanced-learn
 seaborn
 matplotlib
 xgboost
-⚠️App is built on Python - 3.10 environment⚠️
-
-Launch the App 🎈:  
+⚠️ Built on Python 3.10
+```
+</details>
+```
+### 🚀 Launch the App
+```bash
 streamlit run app.py
+```
 
+## 🎮 Usage
 
+Open the app at http://localhost:8501 or use the deployed link (see below). 
 
-Usage 🎮  
+👉 Input Fields: 
+Age: 12–60 
 
-Fire up the app in your browser (locally at http://localhost:8501 or the deployed link) 🌐.  
-Input these features:  
-Age: 12–60 📏  
-Work Pressure: 1–10 💼  
-Job Satisfaction: 1–10 😊  
-Sleep Duration: <5, 5-6, 6-7, 7-8, 8+ hours 😴  
-Work/Study Hours: 0–18 hours ⏰  
-Financial Stress: Yes/No 💸
+Work Pressure: 1–10 
 
+Job Satisfaction: 1–10 
 
-Smash the "Predict" button to see: "Likely Depressed 😟" or "Not Depressed 🙂".
+Sleep Duration: <5, 5–6, 6–7, 7–8, 8+ hours 
 
-Dataset 📊The dataset (final_depression_dataset_1.csv) covers mental health and lifestyle features, with Depression (Yes/No) as the target. Key prep steps:  
+Work/Study Hours: 0–18 hours 
 
-Filled missing values with median (numerical) or mode (categorical) 🧹.  
-Encoded Sleep Duration to 0–4 🔢.  
-Used SMOTE to balance classes ⚖️.
+Financial Stress: Yes/No 
 
-Note: Dataset not in repo due to size/privacy. Hit up the repo owner for access 📧.  
-Model 🤖  
+Click "Predict" to get: 
 
-Algorithm: Logistic Regression (L1 penalty, C=1, solver=liblinear) ⚙️.  
-Preprocessing: SMOTE (sampling_strategy=0.5) and StandardScaler 📈.  
-Features:  
-Age  
-Work Pressure  
-Job Satisfaction  
-Sleep Duration  
-Work/Study Hours  
+"Likely Depressed 😟" or "Not Depressed 🙂" 
+
+## 📊 Dataset
+
+The dataset (final_depression_dataset_1.csv) includes mental health and lifestyle factors. The target variable is Depression (Yes/No). 
+
+Key Preprocessing Steps: 
+
+Missing values filled (median for numeric, mode for categorical) 
+
+Encoded categorical features 
+
+SMOTE used to handle class imbalance (sampling_strategy=0.5) 
+
+📌 Note: Dataset not included due to privacy. Contact the repo owner for access. 
+
+## 🤖 Model Details
+
+Algorithm: Logistic Regression (L1 penalty, C=1, solver=liblinear)
+
+Features Used:
+
+Age
+
+Work Pressure
+
+Job Satisfaction
+
+Sleep Duration
+
+Work/Study Hours
+
 Financial Stress
 
+Preprocessing: StandardScaler + SMOTE
 
-Performance (test set) 📊:  
-Accuracy: ~92.19% ✅  
-Precision: ~77.42% 🎯  
-Recall: ~79.12% 🔍  
-F1 Score: ~78.26% 🌟
+## 📈 Model Performance (Test Set)
 
+| Metric    | Value     |
+| --------- | --------- |
+| Accuracy  | 92.19% ✅  |
+| Precision | 77.42% 🎯 |
+| Recall    | 79.12% 🔍 |
+| F1 Score  | 78.26% 🌟 |
 
+✅ Saved model: depression_model.pkl 
+✅ Saved scaler: scaler.pkl 
 
-Saved as depression_model.pkl and scaler.pkl 💾.  
-Features ✨  
+## ☁️ Deployment
 
-Streamlit UI for easy input 🖱️.  
-Real-time depression predictions with 6 features 🔮.  
-Visuals like class distribution and histograms in Depression Prediction ML Project.py 📉.  
-Compares Logistic Regression, Random Forest, and XGBoost models 🆚.
+🌍 Live App: 
+https://depression-prediction-ml-project-vkxyr7ideplmnhaduwjvss.streamlit.app/ 
 
-Deployment ☁️Hosted on Streamlit Cloud:  
+💡 Pushing changes to GitHub automatically updates the deployed version on Streamlit Cloud. 
 
-URL: [https://depression-prediction-ml-project-vkxyr7ideplmnhaduwjvss.streamlit.app/] 🌍  
-Push changes to GitHub, and Streamlit Cloud auto-redeploys 🔄.
+## 📬 Contact
 
-Contributing 🤝  
-
-Fork the repo 🍴.  
-Create a branch (git checkout -b feature-branch) 🌿.  
-Commit changes (git commit -m "Add feature") ✍️.  
-Push (git push origin feature-branch) 🚀.  
-Open a pull request 📬.
-
-Follow PEP 8 and add comments for clarity 📝.  
+For dataset access or queries, please contact the repository owner via GitHub or email (drishtichaudhary616@gmail.com).
