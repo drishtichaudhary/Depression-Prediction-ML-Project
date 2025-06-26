@@ -132,9 +132,8 @@ smote = SMOTE(sampling_strategy=0.5, random_state=42)  # Adjust ratio as needed
 
 
 # Separate features and target
-X= X_resampled[num_features]
-y = df_resampled['Depression']
-
+X_final = df.drop(columns=['Depression', 'Name'], errors='ignore')
+y_final = df['Depression']
 # In[21]:
 
 
@@ -146,14 +145,14 @@ from imblearn.over_sampling import SMOTE
 
 
 smote = SMOTE(sampling_strategy=0.5, random_state=42)
-X_resampled, y_resampled = smote.fit_resample(X, y)
+X_resampled, y_resampled = smote.fit_resample(X_final, y_final)
 
 
 # In[23]:
 
 
 # Convert back to DataFrame
-df_resampled = pd.concat([pd.DataFrame(X_resampled, columns=X.columns), pd.DataFrame(y_resampled, columns=['Depression'])], axis=1)
+df_resampled = pd.concat([pd.DataFrame(X_resampled, columns=X_final.columns), pd.DataFrame(y_resampled, columns=['Depression'])], axis=1)
 
 
 # In[24]:
@@ -275,7 +274,7 @@ num_features = ['Age', 'Work/Study Hours', 'Financial Stress',
 
 
 scaler = StandardScaler()
-X_resampled[num_features] = scaler.fit_transform(X_resampled[num_features])
+X_final[num_features] = scaler.fit_transform(X_final[num_features])
 
 
 # In[40]:
@@ -286,14 +285,14 @@ import pandas as pd
 
 # Initialize Random Forest model
 rf = RandomForestClassifier(n_estimators=100, random_state=42)
-rf.fit(X, y)
+rf.fit(X_resampled, y_resampled)
 
 
 # In[41]:
 
 
 # Get feature importance
-feature_importances = pd.Series(rf.feature_importances_, index=X.columns)
+feature_importances = pd.Series(rf.feature_importances_, index=X_final.columns)
 feature_importances.sort_values(ascending=False, inplace=True)
 
 
@@ -314,7 +313,7 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
 
 # Split data into train and test sets (80% train, 20% test)
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42, stratify=y)
+X_train, X_test, y_train, y_test = train_test_split(X_final, y_final, test_size=0.2, random_state=42, stratify=y_final)
 
 
 # In[44]:
